@@ -1,25 +1,21 @@
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
-import { db, auth } from "../firebase";
+// Session ID
+if (!localStorage.getItem("sessionId")) {
+  localStorage.setItem("sessionId", Date.now().toString());
+}
 
-// SAVE CART
+const CART_ID = "guest-" + localStorage.getItem("sessionId");
+
+// SAVE
 export const saveCartToFirebase = async (items: any) => {
-  const user = auth.currentUser;
-
-  if (!user) return; // 
-
-  await setDoc(doc(db, "cart", user.uid), {
-    items,
-  });
+  await setDoc(doc(db, "cart", CART_ID), { items });
 };
 
-// LOAD CART
+// LOAD
 export const loadCartFromFirebase = async () => {
-  const user = auth.currentUser;
-
-  if (!user) return {};
-
-  const docRef = doc(db, "cart", user.uid);
+  const docRef = doc(db, "cart", CART_ID);
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
@@ -28,4 +24,3 @@ export const loadCartFromFirebase = async () => {
 
   return {};
 };
-

@@ -4,11 +4,21 @@ type Product = {
   price: number;
 };
 
-export function calculateBill(items: Record<string, number>, products: Product[]) {
+export function calculateBill(
+  items: Record<string, number>,
+  products: Product[]
+) {
   let subtotal = 0;
   let savings = 0;
 
   const itemDetails: any[] = [];
+
+  const getQty = (name: string) => {
+    const product = products.find((p) => p.name === name);
+    return product ? items[product.id] || 0 : 0;
+  };
+
+  const soupQty = getQty("Soup");
 
   Object.keys(items).forEach((id) => {
     const product = products.find((p) => p.id === id)!;
@@ -17,21 +27,21 @@ export function calculateBill(items: Record<string, number>, products: Product[]
     let itemTotal = product.price * qty;
     let itemSavings = 0;
 
-    //BUTTER DISCOUNT (Already done)
-    if (product.name === "Butter" && qty >= 1) {
-      itemSavings += 0.4;
-    }
-
-    //BREAD: Buy 2 get 50% off 1
-    if (product.name === "Bread" && qty >= 2) {
-      const discountPairs = Math.floor(qty / 2);
-      itemSavings += discountPairs * (product.price * 0.5);
-    }
-
-    //SOUP: Buy 3 pay for 2
-    if (product.name === "Soup" && qty >= 3) {
-      const freeItems = Math.floor(qty / 3);
+    // Cheese → Buy 1 Get 1 Free
+    if (product.name === "Cheese") {
+      const freeItems = Math.floor(qty / 2);
       itemSavings += freeItems * product.price;
+    }
+
+    // Bread → 50% OFF if Soup present
+    if (product.name === "Bread") {
+      const eligible = Math.min(qty, soupQty);
+      itemSavings += eligible * (product.price * 0.5);
+    }
+
+    // Butter → 1/3 OFF
+    if (product.name === "Butter") {
+      itemSavings += qty * (product.price / 3);
     }
 
     subtotal += itemTotal;
@@ -52,6 +62,6 @@ export function calculateBill(items: Record<string, number>, products: Product[]
     subtotal,
     savings,
     total: subtotal - savings,
-    itemDetails, 
+    itemDetails,
   };
 }
