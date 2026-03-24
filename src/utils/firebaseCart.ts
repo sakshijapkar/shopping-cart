@@ -2,8 +2,6 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 
 import { db, auth } from "../firebase";
 
-const CART_DOC_ID = "mainCart"; 
-
 // SAVE CART
 export const saveCartToFirebase = async (items: any) => {
   const user = auth.currentUser;
